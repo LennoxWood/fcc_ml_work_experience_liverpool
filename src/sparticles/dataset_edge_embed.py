@@ -1,6 +1,8 @@
 import torch
 import numpy as np
-from torch_geometric.data import InMemoryDataset
+from torch_geometric.data import InMemoryDataset, download_url
+import shutil
+import tarfile
 import pandas as pd
 from torch_geometric.data import Data
 from tqdm import tqdm
@@ -147,12 +149,13 @@ class EventsDataset(InMemoryDataset):
         normalize (bool): Min-max normalise each event type independently
             before building graphs. Default: False.
     """
-
     def __init__(
             self,
             root,
+            url,
             event_subsets: dict = DEFAULT_EVENT_SUBSETS,
             add_edge_index: bool = True,
+            delete_raw_archive: bool = False,
             delete_processed: bool = False,
             transform=None,
             pre_transform=None,
@@ -171,7 +174,9 @@ class EventsDataset(InMemoryDataset):
             C_met: bool = False,
             m_HH: bool = False,
             dPhi_HH: bool = False):
-
+        
+        self.url                = url
+        self.delete_raw_archive = delete_raw_archive
         self.event_subsets      = event_subsets
         self.add_edge_index     = add_edge_index
         self.signal_filename    = signal_filename
@@ -279,28 +284,34 @@ class EventsDataset(InMemoryDataset):
     # -------------------------------------------------------------------------
 
     def download(self):
-        """
-        This dataset reads from local files -- there is nothing to download.
-        If you see this message, it means the expected raw data folders were
-        not found. Please create the following directory structure:
+        print(f'Downloading {self.url} to {self.raw_dir}...')
+        print('This may take a while...')
+        raw_archive = download_url(self.url, self.raw_dir, filename='events.tar', log=False)
 
-            <root>/raw/signal/<signal_filename>
-            <root>/raw/ttbar/<background_filename>
-            <root>/raw/vjets/<vjets_filename>.h5  (only if vjets_no > 0)
+        print('Extracting files...')
+        with tarfile.open(raw_archive) as tar:
+            members = tar.getmembers()
+            for member in members:
+                if 'signal' in member.name and self.signal_filename not in member.name:
+                    continue
+                tar.extract(member, self.raw_dir)
 
-        For example:
-            fcc_hh_data/raw/signal/hhbbtata.h5
-            fcc_hh_data/raw/ttbar/tt012j.h5
-        """
-        raise FileNotFoundError(
-            f"\n\nRaw data folders not found under: {self.raw_dir}\n\n"
-            f"Please create the following structure:\n"
-            f"  {self.raw_dir}/signal/{self.signal_filename}\n"
-            f"  {self.raw_dir}/ttbar/{self.background_filename or '<background>.h5'}\n\n"
-            f"If your data is elsewhere, pass the full path as root=, e.g.\n"
-            f"  root='/path/to/your/data'\n"
-            f"and make sure the raw/ subdirectory structure above exists there."
-        )
+        if self.delete_raw_archive:
+            os.remove(raw_archive)
+
+        print('Moving files...')
+        for dir in self.raw_file_names:
+            dirpath = glob.glob(f'{self.raw_dir}/**/{dir}', recursive=True)[0]
+            shutil.move(dirpath, self.raw_dir)
+            print(f'Moved {dirpath} to {self.raw_dir}')
+
+        print('Cleaning up...')
+        for f in os.listdir(self.raw_dir):
+            if f not in self.raw_file_names + ['events.tar']:
+                try:
+                    shutil.rmtree(os.path.join(self.raw_dir, f))
+                except NotADirectoryError:
+                    os.remove(os.path.join(self.raw_dir, f))
 
     # -------------------------------------------------------------------------
     # Process
