@@ -1,7 +1,7 @@
 # Data files -- raw h5 files are large and should not be committed to the repo.
 # Students download/copy these themselves following the setup instructions.
-fcc_hh_data/processed/
-fcc_hh_data/raw/
+fcc_hh_data/processed/*
+fcc_hh_data/raw/*
 fcc_hh_data/raw/events.tar
 
 # Generated figures -- these are produced by running the notebooks and don't
