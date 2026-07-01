@@ -11,6 +11,7 @@ The project involves some basic programming in Python, however, no experience wi
 ## First time setup:
 
 1. Open **Anaconda PowerShell Prompt** after you have logged into your account. This can be done by opening the Windows Start Menu (by pressing the Windows key on your keyboard) and typing in **Anaconda PowerShell Prompt**.
+
 2. A terminal window should open up, type the following commands:
 ```
 cd M:
@@ -19,17 +20,20 @@ cd PhysicsWorkExperienceWeek
 git clone [link placeholder]
 ```
 These will move you to your M: drive and make a folder where the project is cloned into.
+
 3. Move into the project directory and create the python environment:
 ```
 cd FCCHHBBTAUTAU
 conda env create -f environment.yml
 ```
 This installs all the required packages and will take 10-15 minutes. You will see package names scrolling past — this is normal.
+
 4. Activate the environment:
 ```
 conda activate FCCHH
 ```
 You should see `(FCCHH)` appear at the start of the prompt line.
+
 5. Launch Jupyter Lab:
 ```
 jupyter lab
