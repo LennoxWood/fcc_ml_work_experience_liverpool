@@ -50,4 +50,3 @@ dependencies:
     - pytorch-lightning
     # Install the sparticles package in editable mode so any local changes
     # take effect immediately without reinstalling.
-    - -e .
