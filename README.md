@@ -48,7 +48,7 @@ jupyter lab
 1. Open **Anaconda PowerShell Prompt**
 2. Type the following:
 ```
-cd M:/PhysicsWorkExperienceWeek/FCCHH/FCCHBBTAUTAU
+cd M:/PhysicsWorkExperienceWeek/FCCHH/fcc_ml_work_experience_liverpool
 conda activate FCCHH
 jupyter lab
 ```
