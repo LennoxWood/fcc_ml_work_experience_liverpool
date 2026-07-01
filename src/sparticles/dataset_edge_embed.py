@@ -160,7 +160,7 @@ class EventsDataset(InMemoryDataset):
             transform=None,
             pre_transform=None,
             pre_filter=None,
-            delete_raw_archive,
+            delete_raw_archive: bool = False,
             signal_filename: str = 'hhbbtata.h5',
             background_filename: str = None,
             useful_cols: list = None,
