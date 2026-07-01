@@ -25,6 +25,9 @@ git clone https://github.com/LennoxWood/fcc_ml_work_experience_liverpool.git
 ```
 cd fcc_ml_work_experience_liverpool
 conda env create -f environment.yml
+conda activate FCCHH
+pip install -e .
+jupyter lab
 ```
   This installs all the required packages and will take 10-15 minutes. You will see package names scrolling past — this is normal.
 
