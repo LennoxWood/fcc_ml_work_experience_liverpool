@@ -19,26 +19,26 @@ mkdir PhysicsWorkExperienceWeek
 cd PhysicsWorkExperienceWeek
 git clone [link placeholder]
 ```
-These will move you to your M: drive and make a folder where the project is cloned into.
+  These will move you to your M: drive and make a folder where the project is cloned into.
 
 3. Move into the project directory and create the python environment:
 ```
 cd FCCHHBBTAUTAU
 conda env create -f environment.yml
 ```
-This installs all the required packages and will take 10-15 minutes. You will see package names scrolling past — this is normal.
+  This installs all the required packages and will take 10-15 minutes. You will see package names scrolling past — this is normal.
 
 4. Activate the environment:
 ```
 conda activate FCCHH
 ```
-You should see `(FCCHH)` appear at the start of the prompt line.
+  You should see `(FCCHH)` appear at the start of the prompt line.
 
 5. Launch Jupyter Lab:
 ```
 jupyter lab
 ```
-JupyterLab will open automatically in your browser.
+  JupyterLab will open automatically in your browser.
 
 ## Subsequent setup:
 
