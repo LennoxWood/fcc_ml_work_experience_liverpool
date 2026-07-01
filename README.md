@@ -17,7 +17,7 @@ The project involves some basic programming in Python, however, no experience wi
 cd M:
 mkdir PhysicsWorkExperienceWeek
 cd PhysicsWorkExperienceWeek
-git clone [link placeholder]
+git clone https://github.com/LennoxWood/fcc_ml_work_experience_liverpool.git
 ```
   These will move you to your M: drive and make a folder where the project is cloned into.
 
