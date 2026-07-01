@@ -1,0 +1,53 @@
+name: FCCHH
+
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pip
+
+  # Core scientific stack -- numpy MUST be >=2.0 to read the h5 data files
+  - numpy>=2.0
+  - scipy
+  - pandas
+
+  # HDF5 file reading (tables = PyTables, needed by pandas.read_hdf)
+  - pytables
+  - h5py
+
+  # Plotting
+  - matplotlib
+
+  # Progress bars
+  - tqdm
+
+  # ML utilities
+  - scikit-learn
+
+  # Physics four-vector library (used by Higher_order for m_bb etc.)
+  - vector
+
+  # Jupyter
+  - jupyterlab
+  - ipykernel
+  - ipywidgets
+
+  # PyTorch CPU-only -- fine for dataset processing and plotting on a laptop.
+  # GPU users: replace with the appropriate CUDA variant from
+  # https://pytorch.org/get-started/locally/
+  - pytorch::pytorch
+  - pytorch::cpuonly
+
+  - pip:
+    # PyTorch Geometric (core only -- optional C++ extensions excluded since
+    # pre-built CPU wheels are not available for them, and they aren't
+    # needed for the model sizes used in this project)
+    - torch_geometric
+    - torchmetrics
+    - pytorch-lightning
+    # Install the sparticles package in editable mode so any local changes
+    # take effect immediately without reinstalling.
+    - -e .
