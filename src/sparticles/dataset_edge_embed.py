@@ -151,12 +151,14 @@ class EventsDataset(InMemoryDataset):
     def __init__(
             self,
             root,
+            url,
             event_subsets: dict = DEFAULT_EVENT_SUBSETS,
             add_edge_index: bool = True,
             delete_processed: bool = False,
             transform=None,
             pre_transform=None,
             pre_filter=None,
+            delete_raw_archive,
             signal_filename: str = 'hhbbtata.h5',
             background_filename: str = None,
             useful_cols: list = None,
@@ -178,6 +180,9 @@ class EventsDataset(InMemoryDataset):
         self.background_filename = background_filename
         self.normalize          = normalize
 
+        self.url = url
+        self.delete_raw_archive = delete_raw_archive
+                
         self.m_bb    = m_bb;  self.dR_bb   = dR_bb
         self.m_tt    = m_tt;  self.dR_tt   = dR_tt;  self.dpT_tt = dpT_tt
         self.m_T     = m_T;   self.C_met   = C_met
@@ -292,15 +297,34 @@ class EventsDataset(InMemoryDataset):
             fcc_hh_data/raw/signal/hhbbtata.h5
             fcc_hh_data/raw/ttbar/tt012j.h5
         """
-        raise FileNotFoundError(
-            f"\n\nRaw data folders not found under: {self.raw_dir}\n\n"
-            f"Please create the following structure:\n"
-            f"  {self.raw_dir}/signal/{self.signal_filename}\n"
-            f"  {self.raw_dir}/ttbar/{self.background_filename or '<background>.h5'}\n\n"
-            f"If your data is elsewhere, pass the full path as root=, e.g.\n"
-            f"  root='/path/to/your/data'\n"
-            f"and make sure the raw/ subdirectory structure above exists there."
-        )
+        print(f'Downloading {self.url} to {self.raw_dir}...')
+        print('This may take a while...')
+        raw_archive = download_url(self.url, self.raw_dir, filename='events.tar', log=False)
+
+        print('Extracting files...')
+        with tarfile.open(raw_archive) as tar:
+            members = tar.getmembers()
+            for member in members:
+                if 'signal' in member.name and self.signal_filename not in member.name:
+                    continue
+                tar.extract(member, self.raw_dir)
+
+        if self.delete_raw_archive:
+            os.remove(raw_archive)
+
+        print('Moving files...')
+        for dir in self.raw_file_names:
+            dirpath = glob.glob(f'{self.raw_dir}/**/{dir}', recursive=True)[0]
+            shutil.move(dirpath, self.raw_dir)
+            print(f'Moved {dirpath} to {self.raw_dir}')
+
+        print('Cleaning up...')
+        for f in os.listdir(self.raw_dir):
+            if f not in self.raw_file_names + ['events.tar']:
+                try:
+                    shutil.rmtree(os.path.join(self.raw_dir, f))
+                except NotADirectoryError:
+                    os.remove(os.path.join(self.raw_dir, f))
 
     # -------------------------------------------------------------------------
     # Process
