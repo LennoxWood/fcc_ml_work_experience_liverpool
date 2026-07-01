@@ -146,7 +146,7 @@ def apply_cuts(dataset, cuts,
             print(f"  Improved by {sig_after_w - baseline_w:.2f} :)"
                   f"  ({100*(sig_after_w/baseline_w - 1):.1f}% better)")
         else:
-            print(f"  Worse than no cuts by {baseline_w - sig_after_w:.2f} :)")
+            print(f"  Worse than no cuts by {baseline_w - sig_after_w:.2f} :(")
         print()
     print("=" * 52)
 
