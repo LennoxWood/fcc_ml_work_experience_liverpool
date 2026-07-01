@@ -183,6 +183,9 @@ class EventsDataset(InMemoryDataset):
         self.background_filename = background_filename
         self.normalize          = normalize
 
+        self.url = url
+        self.delete_raw_archive = delete_raw_archive
+                
         self.m_bb    = m_bb;  self.dR_bb   = dR_bb
         self.m_tt    = m_tt;  self.dR_tt   = dR_tt;  self.dpT_tt = dpT_tt
         self.m_T     = m_T;   self.C_met   = C_met
@@ -280,10 +283,23 @@ class EventsDataset(InMemoryDataset):
         )
 
     # -------------------------------------------------------------------------
-    # Download -- not used, but must be defined; tells the user what to do
+    # Download
     # -------------------------------------------------------------------------
 
     def download(self):
+        """
+        This dataset reads from local files -- there is nothing to download.
+        If you see this message, it means the expected raw data folders were
+        not found. Please create the following directory structure:
+
+            <root>/raw/signal/<signal_filename>
+            <root>/raw/ttbar/<background_filename>
+            <root>/raw/vjets/<vjets_filename>.h5  (only if vjets_no > 0)
+
+        For example:
+            fcc_hh_data/raw/signal/hhbbtata.h5
+            fcc_hh_data/raw/ttbar/tt012j.h5
+        """
         print(f'Downloading {self.url} to {self.raw_dir}...')
         print('This may take a while...')
         raw_archive = download_url(self.url, self.raw_dir, filename='events.tar', log=False)

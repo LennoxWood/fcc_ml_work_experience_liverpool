@@ -6,6 +6,7 @@ fcc_hh_data/raw/
 # Generated figures -- these are produced by running the notebooks and don't
 # need to be tracked. Re-running the notebook will recreate them.
 Saved Figures/
+Saved Models/
 
 # Jupyter notebook checkpoints
 .ipynb_checkpoints/
@@ -21,3 +22,6 @@ conda/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Notebooks
+Part_1.ipynb

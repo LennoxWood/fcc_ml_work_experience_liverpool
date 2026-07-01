@@ -37,7 +37,7 @@ class MakeHomogeneous(BaseTransform):
         self.nan_to_num = nan_to_num
         super(MakeHomogeneous, self).__init__()
 
-    def __call__(self, data):
+    def forward(self, data):
         """
         Forward pass of the transform.
 
@@ -68,7 +68,7 @@ class RevertMakeHomogeneous(BaseTransform):
 
         
 
-    def __call__(self, data):
+    def forward(self, data):
         """
         Forward pass of the transform.
 
