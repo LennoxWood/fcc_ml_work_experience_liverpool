@@ -226,6 +226,7 @@ def plot_output_distribution(true_labels, predicted_probs,
 
 def plot_significance(signal_probs, background_probs,
                       signal_scale, background_scale,
+                      max_signal=None, max_background=None,
                       save_dir='Saved Figures/GNN', show=True):
     """
     Calculate and plot cumulative and per-bin S/√B significance vs GNN score.
@@ -234,16 +235,27 @@ def plot_significance(signal_probs, background_probs,
     ----------
     signal_probs, background_probs : arrays of GNN scores from get_predictions()
     signal_scale, background_scale : physical event weights (from analysis.py)
+    max_signal, max_background     : total events available in the full dataset
+        file (from analysis.MAX_SIGNAL_EVENTS / MAX_BACKGROUND_EVENTS). When
+        provided, the significance uses the full physical yield scaled by the
+        GNN cut efficiency, so the result is independent of how many events
+        were loaded. When None, falls back to using the sample size directly.
 
     Returns
     -------
     float : peak cumulative significance
     """
+    n_sig = max_signal     if max_signal     is not None else len(signal_probs)
+    n_bkg = max_background if max_background is not None else len(background_probs)
     bins = np.linspace(0, 1, 101)
+    # Weight each event so that all events together sum to the full physical
+    # yield, scaled by the GNN score distribution from the sample.
+    sig_w_per_event = signal_scale     * n_sig / len(signal_probs)
+    bkg_w_per_event = background_scale * n_bkg / len(background_probs)
     ns   = np.histogram(signal_probs,     bins=bins,
-                        weights=np.full(len(signal_probs),     signal_scale))[0]
+                        weights=np.full(len(signal_probs),     sig_w_per_event))[0]
     nb   = np.histogram(background_probs, bins=bins,
-                        weights=np.full(len(background_probs), background_scale))[0]
+                        weights=np.full(len(background_probs), bkg_w_per_event))[0]
 
     # Cumulative significance scanning from right (high score → signal-like)
     signifs, cumul = [], 0.0
@@ -256,8 +268,7 @@ def plot_significance(signal_probs, background_probs,
 
     best_score  = bincents[np.argmax(signifs)]
     best_signif = max(signifs)
-    no_cut      = (len(signal_probs) * signal_scale) / \
-                  np.sqrt(len(background_probs) * background_scale)
+    no_cut      = (signal_scale * n_sig) / np.sqrt(background_scale * n_bkg)
 
     print(f'Significance with no GNN cut:  {no_cut:.2f}')
     print(f'Best cumulative significance:  {best_signif:.2f}  '

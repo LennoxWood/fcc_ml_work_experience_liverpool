@@ -48,7 +48,7 @@ def summarise(dataset):
               f"  {bkg[v].min():>10.1f} {bkg[v].mean():>10.1f} {bkg[v].max():>10.1f}")
 
 
-def apply_cuts(dataset, cuts,
+def apply_cuts(dataset, cuts, 
                signal_weight=SIGNAL_SCALE,
                background_weight=BACKGROUND_SCALE,
                save_dir='Saved Figures/CutAnalysis',
@@ -86,8 +86,8 @@ def apply_cuts(dataset, cuts,
     B_total_raw = len(bkg_events)
 
     # Weighted totals (physically expected event yields)
-    S_total_w = S_total_raw * signal_weight
-    B_total_w = B_total_raw * background_weight
+    S_total_w = S_total_raw * signal_weight * (233994/S_total_raw)
+    B_total_w = B_total_raw * background_weight * (56377/B_total_raw)
 
     # Apply cuts
     mask = pd.Series([True] * len(events), index=events.index)

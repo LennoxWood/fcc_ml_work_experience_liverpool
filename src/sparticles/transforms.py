@@ -37,6 +37,11 @@ class MakeHomogeneous(BaseTransform):
         self.nan_to_num = nan_to_num
         super(MakeHomogeneous, self).__init__()
 
+    def _double(self, tensor):
+        nan_mask = torch.isnan(tensor).type(tensor.dtype)
+        doubled = torch.cat((tensor.unsqueeze(2), nan_mask.unsqueeze(2)), dim=2)
+        return doubled.reshape(tensor.shape[0], -1).nan_to_num_(self.nan_to_num).float()
+
     def forward(self, data):
         """
         Forward pass of the transform.
@@ -52,7 +57,11 @@ class MakeHomogeneous(BaseTransform):
 
         # concat and replace nan nodes with zeros
         new_nodes = torch.cat((data.x.unsqueeze(2), nan_nodes.unsqueeze(2)), dim=2).reshape(data.x.shape[0], -1).nan_to_num_(self.nan_to_num)
-        data.x = new_nodes.float()
+        data.x = self._double(data.x)
+        if getattr(data, 'edge_attr', None) is not None:
+            nan_edges = torch.isnan(data.edge_attr).type(data.edge_attr.dtype)
+            new_edges = torch.cat((data.edge_attr.unsqueeze(2), nan_edges.unsqueeze(2)), dim=2).reshape(data.edge_attr.shape[0], -1).nan_to_num_(self.nan_to_num)
+            data.edge_attr = new_edges.float()
         return data
 
 
@@ -68,7 +77,7 @@ class RevertMakeHomogeneous(BaseTransform):
 
         
 
-    def forward(self, data):
+    def __call__(self, data):
         """
         Forward pass of the transform.
 

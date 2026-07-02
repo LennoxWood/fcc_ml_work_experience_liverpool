@@ -32,23 +32,24 @@ class GAT(torch.nn.Module):
         input_channels (int): Number of input features per node.
         hidden_channels (int): Width of the hidden layers.
         num_classes (int): Output dimension (1 for binary classification).
+        edge_dim (int): Dimension of edges.
     """
-
-    def __init__(self, input_channels, hidden_channels, num_classes):
+    
+    def __init__(self, input_channels, hidden_channels, num_classes, edge_dim=None):
         super().__init__()
         torch.manual_seed(MANUAL_SEED)
-
-        self.conv1       = GATv2Conv(input_channels,   hidden_channels)
+        # edge_dim tells GATv2Conv to incorporate edge features into attention
+        self.conv1       = GATv2Conv(input_channels,  hidden_channels, edge_dim=edge_dim)
         self.activation1 = torch.nn.ReLU()
-        self.conv2       = GATv2Conv(hidden_channels,  hidden_channels)
+        self.conv2       = GATv2Conv(hidden_channels, hidden_channels, edge_dim=edge_dim)
         self.activation2 = torch.nn.ReLU()
-        self.conv3       = GATv2Conv(hidden_channels,  hidden_channels)
+        self.conv3       = GATv2Conv(hidden_channels, hidden_channels, edge_dim=edge_dim)
         self.aggregate   = global_mean_pool
         self.head        = torch.nn.Linear(hidden_channels, num_classes)
 
-    def forward(self, x, edge_index, batch):
-        x = self.activation1(self.conv1(x, edge_index))
-        x = self.activation2(self.conv2(x, edge_index))
-        x = self.conv3(x, edge_index)
+    def forward(self, x, edge_index, batch, edge_attr=None):
+        x = self.activation1(self.conv1(x, edge_index, edge_attr=edge_attr))
+        x = self.activation2(self.conv2(x, edge_index, edge_attr=edge_attr))
+        x = self.conv3(x, edge_index, edge_attr=edge_attr)
         x = self.aggregate(x, batch)
         return self.head(x)
